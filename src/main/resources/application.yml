@@ -1,0 +1,77 @@
+spring:
+
+  application:
+
+    name: catalogo
+
+  datasource:
+
+    url: jdbc:postgresql://localhost:5432/catalogo
+
+    username: catalogo
+
+    password: catalogo
+
+    hikari:
+
+      maximum-pool-size: 10
+
+      connection-timeout: 3000
+
+  jpa:
+
+    hibernate:
+
+      ddl-auto: validate
+
+    open-in-view: false
+
+    properties:
+
+      hibernate:
+
+        format_sql: true
+
+        jdbc:
+
+          time_zone: UTC
+
+  jackson:
+
+    default-property-inclusion: non_null
+
+    deserialization:
+
+      fail-on-unknown-properties: true
+
+
+
+server:
+
+  port: 8080
+
+  error:
+
+    include-stacktrace: never
+
+
+
+management:
+
+  endpoints:
+
+    web:
+
+      exposure:
+
+        include: health,info
+
+
+
+logging:
+
+  level:
+
+    org.hibernate.SQL: debug
+
+    org.hibernate.orm.jdbc.bind: trace
