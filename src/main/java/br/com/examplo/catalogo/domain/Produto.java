@@ -9,7 +9,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Table(name = "produto") // Defina o nome exato da sua tabela aqui
@@ -17,7 +19,7 @@ public class Produto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY para auto-incremento (MySQL, Postgres, etc.)
-    private Long id;
+    private UUID id;
 
     @NotBlank(message = "O nome do produto é obrigatório")
     @Size(max = 100, message = "O nome deve ter no máximo 100 caracteres")
@@ -38,11 +40,36 @@ public class Produto {
     @Column(name = "categoria", nullable = false, length = 50)
     private Categoria categoria;
 
-    // Construtor padrão obrigatório pelo Hibernate
-    public Produto() {
+    //O JPA começa a gerenciar esse campo de versão do banco de dados depois de aplicado essa notação @Version
+    @NotNull
+    @Version
+    @Column(name = "versao", nullable = false)
+    private int version;
+
+    @NotNull
+    private OffsetDateTime atualizadoEm;
+
+    @NotNull
+    private OffsetDateTime criadoEm;
+
+    @PrePersist // Usado para adicionar a data na hora de ocorrer a ação e não apenas quando acontece alteração no banco, mas sim no objeto
+    protected void antesDeInserir() {
+        OffsetDateTime agora = OffsetDateTime.now();
+
+        this.criadoEm = agora;
+        this.atualizadoEm = agora;
+    }
+    @PreUpdate // Mesma coisa do PrePersist, mas para o update, e assim deixa o primeiro registro de criação intacto e altera apenas novas atualizações
+    protected void antesDeAtualizar() {
+        this.atualizadoEm = OffsetDateTime.now();
     }
 
-    public Produto(Long id, String nome, String descricao, BigDecimal preco, Categoria categoria) {
+
+    // Construtor padrão obrigatório pelo Hibernate,UseI protected no construtor sem argumentos
+    protected Produto() {
+    }
+
+    public Produto(UUID id, String nome, String descricao, BigDecimal preco, Categoria categoria) {
         this.id = id;
         this.nome = nome;
         this.descricao = descricao;
@@ -51,11 +78,11 @@ public class Produto {
     }
 
     // Getters e Setters
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
